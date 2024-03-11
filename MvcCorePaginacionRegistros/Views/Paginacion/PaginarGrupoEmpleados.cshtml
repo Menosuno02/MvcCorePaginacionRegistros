@@ -1,0 +1,81 @@
+﻿@model List<Empleado>
+
+@{
+    ViewData["Title"] = "PaginarGrupoEmpleado";
+}
+
+@{
+    int numeroRegistros = (int)ViewData["REGISTROS"];
+    int numeroPagina = 1;
+}
+
+<h1 class="text-danger">PaginarGrupoEmpleados</h1>
+
+<hr />
+<ul class="list-group list-group-horizontal">
+    @for (int i = 1; i <= numeroRegistros; i += 3)
+    {
+        <li class="list-group-item list-group-item-danger">
+            <a asp-controller="Paginacion"
+               asp-action="PaginarGrupoEmpleados"
+               asp-route-posicion="@i">
+                Pagina @numeroPagina
+            </a>
+        </li>
+        numeroPagina += 1;
+    }
+</ul>
+<hr />
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table table-borderless table-danger">
+    <thead>
+        <tr>
+            <th>
+                EMPNO
+            </th>
+            <th>
+                APELLIDO
+            </th>
+            <th>
+                OFICIO
+            </th>
+            <th>
+                SALARIO
+            </th>
+            <th>
+                DEPTNO
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.EmpNo
+                </td>
+                <td>
+                    @item.Apellido
+                </td>
+                <td>
+                    @item.Oficio
+                </td>
+                <td>
+                    @item.Salario
+                </td>
+                <td>
+                    @item.IdDepartamento
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
