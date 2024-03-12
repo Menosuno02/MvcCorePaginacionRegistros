@@ -1,0 +1,82 @@
+﻿@model Empleado
+
+@{
+    Departamento depart = ViewData["DEPART"] as Departamento;
+}
+
+
+<h3 class="mt-3">
+    Empleado @ViewData["POSICION"] de @ViewData["ÚLTIMO"]
+</h3>
+
+<ul class="list-group list-group-horizontal">
+    <li class="list-group-item">
+        <button class="btn" id="primero">
+            Primero
+        </button>
+    </li>
+    <li class="list-group-item">
+        <button class="btn" id="anterior">
+            Anterior
+        </button>
+    </li>
+    <li class="list-group-item">
+        <button class="btn" id="siguiente">
+            Siguiente
+        </button>
+    </li>
+    <li class="list-group-item">
+        <button class="btn" id="ultimo">
+            Último
+        </button>
+    </li>
+</ul>
+<hr />
+<div id="contentempleado"></div>
+
+<table class="table table-borderless table-success">
+    <thead>
+        <tr>
+            <th>EMPNO</th>
+            <th>APELLIDO</th>
+            <th>OFICIO</th>
+            <th>SALARIO</th>
+            <th>DEPTNO</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>@Model.EmpNo</td>
+            <td>@Model.Apellido</td>
+            <td>@Model.Oficio</td>
+            <td>@Model.Salario</td>
+            <td>@Model.IdDepartamento</td>
+        </tr>
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $("#contentempleado").load("/Departamentos/_Empleado?posicion="
+                + @ViewData["POSICION"] + "&iddepart=" + @depart.DeptNo);
+
+            $("button#primero").on("click", function () {
+                $("#contentempleado").load("/Departamentos/_Empleado?posicion=" +
+        @ViewData["PRIMERO"] + "&iddepart=" + @depart.DeptNo);
+            });
+            $("button#anterior").on("click", function () {
+                $("#contentempleado").load("/Departamentos/_Empleado?posicion=" +
+        @ViewData["ANTERIOR"] + "&iddepart=" + @depart.DeptNo);
+            });
+            $("button#siguiente").on("click", function () {
+                $("#contentempleado").load("/Departamentos/_Empleado?posicion=" +
+        @ViewData["SIGUIENTE"] + "&iddepart=" + @depart.DeptNo);
+            });
+            $("button#ultimo").on("click", function () {
+                $("#contentempleado").load("/Departamentos/_Empleado?posicion=" +
+        @ViewData["ÚLTIMO"] + "&iddepart=" + @depart.DeptNo);
+            });
+        });
+    </script>
+}

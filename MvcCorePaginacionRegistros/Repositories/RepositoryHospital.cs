@@ -53,6 +53,24 @@ AS
 	WHERE QUERY.POSICION >= @POSICION
 	AND QUERY.POSICION < (@POSICION + 2)
 GO
+
+CREATE OR ALTER PROCEDURE SP_GRUPO_EMPLEADOS_DEPT_OUT
+(@POSICION INT, @DEPT_NO INT, @REGISTROS INT OUT)
+AS
+	SELECT @REGISTROS = COUNT(EMP_NO)
+	FROM EMP
+	WHERE DEPT_NO = @DEPT_NO
+	SELECT EMP_NO, APELLIDO, SALARIO, OFICIO, DEPT_NO
+	FROM
+	(
+		SELECT CAST(ROW_NUMBER() OVER (ORDER BY DEPT_NO) AS INT) AS POSICION,
+		ISNULL(EMP_NO, 0) AS EMP_NO, APELLIDO, SALARIO, OFICIO, DEPT_NO
+		FROM EMP
+		WHERE DEPT_NO = @DEPT_NO
+	)
+	AS QUERY
+	WHERE QUERY.POSICION = @POSICION
+GO
 */
 #endregion
 
@@ -66,6 +84,33 @@ namespace MvcCorePaginacionRegistros.Repositories
         {
             this.context = context;
         }
+
+        public async Task<List<Departamento>>
+            GetDepartamentosAsync()
+        {
+            return await this.context.Departamentos.ToListAsync();
+        }
+
+        public async Task<ModelPaginacionDepartamentos>
+            GetDatosPaginacionDepartAsync(int posicion, int iddepart)
+        {
+            ModelPaginacionDepartamentos model = new ModelPaginacionDepartamentos();
+            model.Departamento = await this.context.Departamentos
+                .FirstOrDefaultAsync(d => d.DeptNo == iddepart);
+            string sql = "SP_GRUPO_EMPLEADOS_DEPT_OUT @POSICION, @DEPT_NO," +
+                "@REGISTROS OUT";
+            SqlParameter paramPosicion = new SqlParameter("@POSICION", posicion);
+            SqlParameter paramDeptno = new SqlParameter("@DEPT_NO", iddepart);
+            SqlParameter paramRegistros = new SqlParameter("@REGISTROS", -1);
+            paramRegistros.Direction = ParameterDirection.Output;
+            var consulta = this.context.Empleados.FromSqlRaw
+                (sql, paramPosicion, paramDeptno, paramRegistros);
+            List<Empleado> empleados = await consulta.ToListAsync();
+            model.Empleado = empleados.FirstOrDefault();
+            model.NumRegistros = (int)paramRegistros.Value;
+            return model;
+        }
+
 
         // El controller nos va a dar una posición y un oficio
         // Debemos devolver empleados y numRegistros
@@ -152,11 +197,6 @@ namespace MvcCorePaginacionRegistros.Repositories
                            && datos.Posicion < (posicion + 2)
                            select datos;
             return await consulta.ToListAsync();
-        }
-
-        public async Task<List<Departamento>> GetDepartamentosAsync()
-        {
-            return await this.context.Departamentos.ToListAsync();
         }
 
         public async Task<List<Empleado>> GetEmpleadosDepartamenoAsync

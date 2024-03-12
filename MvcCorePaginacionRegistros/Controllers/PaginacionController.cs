@@ -26,7 +26,6 @@ namespace MvcCorePaginacionRegistros.Controllers
             {
                 ModelPaginacionEmpleados model = await
                     this.repo.GetGrupoEmpleadosOficioOutAsync(posicion.Value, oficio);
-                int registros = await this.repo.GetNumeroEmpleadosOficioAsync(oficio);
                 ViewData["REGISTROS"] = model.NumeroRegistros;
                 ViewData["OFICIO"] = oficio;
                 return View(model.Empleados);
@@ -40,7 +39,6 @@ namespace MvcCorePaginacionRegistros.Controllers
             // Cuando buscamos, normalmente, en que posición comienza todo
             ModelPaginacionEmpleados model = await
                     this.repo.GetGrupoEmpleadosOficioOutAsync(1, oficio);
-            int registros = await this.repo.GetNumeroEmpleadosOficioAsync(oficio);
             ViewData["REGISTROS"] = model.NumeroRegistros;
             ViewData["OFICIO"] = oficio;
             return View(model.Empleados);
