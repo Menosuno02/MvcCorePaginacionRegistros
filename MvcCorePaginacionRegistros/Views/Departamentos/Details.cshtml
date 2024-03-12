@@ -12,53 +12,18 @@
         Localidad: @depart.Localidad
     </li>
 </ul>
-<ul class="list-group list-group-horizontal">
-    <li class="list-group-item">
-        <button class="btn" id="primero">
-            Primero
-        </button>
-    </li>
-    <li class="list-group-item">
-        <button class="btn" id="anterior">
-            Anterior
-        </button>
-    </li>
-    <li class="list-group-item">
-        <button class="btn" id="siguiente">
-            Siguiente
-        </button>
-    </li>
-    <li class="list-group-item">
-        <button class="btn" id="ultimo">
-            Último
-        </button>
-    </li>
-</ul>
-<div id="contentempleado"></div>
 
+<div id="contentempleado"></div>
 
 @section Scripts {
     <script>
-        $(function () {
-            $("#contentempleado").load("/Departamentos/_Empleado?posicion="
-                + @ViewData["POSICION"] + "&iddepart=" + @depart.DeptNo);
+        function loadEmpleadoPaginacion(posicion) {
+            $(function () {
+                $("#contentempleado").load("/Departamentos/_Empleado?posicion="
+                    + posicion + "&iddepart=" + @depart.DeptNo);
+            });
+        }
 
-            $("button#primero").on("click", function () {
-                $("#contentempleado").load("/Departamentos/_Empleado?posicion=" +
-        @ViewData["PRIMERO"] + "&iddepart=" + @depart.DeptNo);
-            });
-            $("button#anterior").on("click", function () {
-                $("#contentempleado").load("/Departamentos/_Empleado?posicion=" +
-        @ViewData["ANTERIOR"] + "&iddepart=" + @depart.DeptNo);
-            });
-            $("button#siguiente").on("click", function () {
-                $("#contentempleado").load("/Departamentos/_Empleado?posicion=" +
-        @ViewData["SIGUIENTE"] + "&iddepart=" + @depart.DeptNo);
-            });
-            $("button#ultimo").on("click", function () {
-                $("#contentempleado").load("/Departamentos/_Empleado?posicion=" +
-        @ViewData["ÚLTIMO"] + "&iddepart=" + @depart.DeptNo);
-            });
-        });
+        loadEmpleadoPaginacion(1);
     </script>
 }

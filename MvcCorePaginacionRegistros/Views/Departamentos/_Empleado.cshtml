@@ -9,7 +9,28 @@
     Empleado @ViewData["POSICION"] de @ViewData["ÚLTIMO"]
 </h3>
 
-<div id="contentempleado"></div>
+<ul class="list-group list-group-horizontal">
+    <li class="list-group-item">
+        <button onclick="loadEmpleadoPaginacion(1)" class="btn">
+            Primero
+        </button>
+    </li>
+    <li class="list-group-item">
+        <button onclick="loadEmpleadoPaginacion(@ViewData["ANTERIOR"])" class="btn">
+            Anterior
+        </button>
+    </li>
+    <li class="list-group-item">
+        <button onclick="loadEmpleadoPaginacion(@ViewData["SIGUIENTE"])" class="btn">
+            Siguiente
+        </button>
+    </li>
+    <li class="list-group-item">
+        <button onclick="loadEmpleadoPaginacion(@ViewData["ÚLTIMO"])" class="btn">
+            Último
+        </button>
+    </li>
+</ul>
 
 <table class="table table-borderless table-success">
     <thead>
@@ -31,29 +52,3 @@
         </tr>
     </tbody>
 </table>
-
-@section Scripts {
-    <script>
-        $(function () {
-            $("#contentempleado").load("/Departamentos/_Empleado?posicion="
-                + @ViewData["POSICION"] + "&iddepart=" + @depart.DeptNo);
-
-            $("button#primero").on("click", function () {
-                $("#contentempleado").load("/Departamentos/_Empleado?posicion=" +
-        @ViewData["PRIMERO"] + "&iddepart=" + @depart.DeptNo);
-            });
-            $("button#anterior").on("click", function () {
-                $("#contentempleado").load("/Departamentos/_Empleado?posicion=" +
-        @ViewData["ANTERIOR"] + "&iddepart=" + @depart.DeptNo);
-            });
-            $("button#siguiente").on("click", function () {
-                $("#contentempleado").load("/Departamentos/_Empleado?posicion=" +
-        @ViewData["SIGUIENTE"] + "&iddepart=" + @depart.DeptNo);
-            });
-            $("button#ultimo").on("click", function () {
-                $("#contentempleado").load("/Departamentos/_Empleado?posicion=" +
-        @ViewData["ÚLTIMO"] + "&iddepart=" + @depart.DeptNo);
-            });
-        });
-    </script>
-}
