@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MvcCorePaginacionRegistros.Data;
 using MvcCorePaginacionRegistros.Models;
+using System.Data;
 
 #region
 /*
@@ -36,6 +37,22 @@ AS
 	WHERE POSICION >= @POSICION
 	AND POSICION < (@POSICION + 3)
 GO
+
+CREATE OR ALTER PROCEDURE SP_GRUPO_EMPLEADOS_OFICIO
+(@POSICION INT, @OFICIO NVARCHAR(100))
+AS
+	SELECT EMP_NO, APELLIDO, OFICIO, SALARIO, DEPT_NO
+	FROM
+	(
+		SELECT CAST(ROW_NUMBER() OVER (ORDER BY EMP_NO) AS int) AS POSICION,
+		ISNULL(EMP_NO, 0) AS EMP_NO, APELLIDO, OFICIO, SALARIO, DEPT_NO
+		FROM EMP
+		WHERE OFICIO = @OFICIO
+	)
+	AS QUERY
+	WHERE QUERY.POSICION >= @POSICION
+	AND QUERY.POSICION < (@POSICION + 2)
+GO
 */
 #endregion
 
@@ -50,7 +67,49 @@ namespace MvcCorePaginacionRegistros.Repositories
             this.context = context;
         }
 
-        public async Task<List<Empleado>> GetGrupoEmpleadosAsync(int posicion)
+        // El controller nos va a dar una posición y un oficio
+        // Debemos devolver empleados y numRegistros
+        public async Task<ModelPaginacionEmpleados>
+            GetGrupoEmpleadosOficioOutAsync(int posicion, string oficio)
+        {
+            string sql = "SP_GRUPO_EMPLEADOS_OFICIO_OUT @POSICION, @OFICIO," +
+                " @REGISTROS OUT";
+            SqlParameter paramPosicion = new SqlParameter("@POSICION", posicion);
+            SqlParameter paramOficio = new SqlParameter("@OFICIO", oficio);
+            SqlParameter paramRegistros = new SqlParameter("REGISTROS", -1);
+            paramRegistros.Direction = ParameterDirection.Output;
+            var consulta = this.context.Empleados.FromSqlRaw
+                (sql, paramPosicion, paramOficio, paramRegistros);
+            List<Empleado> empleados = await consulta.ToListAsync();
+            int registros = (int)paramRegistros.Value;
+            return new ModelPaginacionEmpleados
+            {
+                NumeroRegistros = registros,
+                Empleados = empleados
+            };
+        }
+
+        public async Task<int> GetNumeroEmpleadosOficioAsync
+            (string oficio)
+        {
+            return await this.context.Empleados
+                .Where(e => e.Oficio == oficio)
+                .CountAsync();
+        }
+
+        public async Task<List<Empleado>> GetGruposEmpleadosOficioAsync
+            (int posicion, string oficio)
+        {
+            string sql = "SP_GRUPO_EMPLEADOS_OFICIO @POSICION, @OFICIO";
+            SqlParameter paramPosicion = new SqlParameter("@POSICION", posicion);
+            SqlParameter paramOficio = new SqlParameter("@OFICIO", oficio);
+            var consulta = this.context.Empleados
+                .FromSqlRaw(sql, paramPosicion, paramOficio);
+            return await consulta.ToListAsync();
+        }
+
+        public async Task<List<Empleado>> GetGrupoEmpleadosAsync
+            (int posicion)
         {
             string sql = "SP_GRUPO_EMPLEADOS @POSICION";
             SqlParameter paramPosicion = new SqlParameter("@POSICION", posicion);

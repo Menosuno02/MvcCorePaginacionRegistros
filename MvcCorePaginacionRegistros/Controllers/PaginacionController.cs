@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using MvcCorePaginacionRegistros.Models;
 using MvcCorePaginacionRegistros.Repositories;
 
@@ -13,36 +14,69 @@ namespace MvcCorePaginacionRegistros.Controllers
             this.repo = repo;
         }
 
-        /*
-        public async Task<IActionResult>
-            PaginarGrupoVistaDepartamento(int? posicion)
+        public async Task<IActionResult> EmpleadosOficioOut
+            (int? posicion, string oficio)
         {
             if (posicion == null)
             {
                 posicion = 1;
+                return View();
             }
-            // <a href='paginargrupo?posicion=1'>Página 1</a>
-            // <a href='paginargrupo?posicion=3'>Página 2</a>
-            // <a href='paginargrupo?posicion=5'>Página 3</a>
-            // <a href='paginargrupo?posicion=7'>Página 4</a>
-            int numeroPagina = 1;
-            int numRegistros = await this.repo.GetNumVistaDepartamentos();
-            // Vamos a generar el código HTML desde el controller
-            string html = "<div>";
-            for (int i = 1; i <= numRegistros; i += 2)
+            else
             {
-                html +=
-                    "<a href='PaginarGrupoVistaDepartamento?posicion=" +
-                    i + "'>Pagina " + numeroPagina + "</a>";
-                numeroPagina++;
+                ModelPaginacionEmpleados model = await
+                    this.repo.GetGrupoEmpleadosOficioOutAsync(posicion.Value, oficio);
+                int registros = await this.repo.GetNumeroEmpleadosOficioAsync(oficio);
+                ViewData["REGISTROS"] = model.NumeroRegistros;
+                ViewData["OFICIO"] = oficio;
+                return View(model.Empleados);
             }
-            html += "</div>";
-            ViewData["LINKS"] = html;
-            List<VistaDepartamento> departamentos =
-                await this.repo.GetGrupoVistaDepartamentoAsync(posicion.Value);
-            return View(departamentos);
         }
-        */
+
+        [HttpPost]
+        public async Task<IActionResult> EmpleadosOficioOut
+            (string oficio)
+        {
+            // Cuando buscamos, normalmente, en que posición comienza todo
+            ModelPaginacionEmpleados model = await
+                    this.repo.GetGrupoEmpleadosOficioOutAsync(1, oficio);
+            int registros = await this.repo.GetNumeroEmpleadosOficioAsync(oficio);
+            ViewData["REGISTROS"] = model.NumeroRegistros;
+            ViewData["OFICIO"] = oficio;
+            return View(model.Empleados);
+        }
+
+        public async Task<IActionResult> EmpleadosOficio
+            (int? posicion, string oficio)
+        {
+            if (posicion == null)
+            {
+                posicion = 1;
+                return View();
+            }
+            else
+            {
+                List<Empleado> empleados = await
+                    this.repo.GetGruposEmpleadosOficioAsync(posicion.Value, oficio);
+                int registros = await this.repo.GetNumeroEmpleadosOficioAsync(oficio);
+                ViewData["REGISTROS"] = registros;
+                ViewData["OFICIO"] = oficio;
+                return View(empleados);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EmpleadosOficio
+            (string oficio)
+        {
+            // Cuando buscamos, normalmente, en que posición comienza todo
+            List<Empleado> empleados =
+                await this.repo.GetGruposEmpleadosOficioAsync(1, oficio);
+            int registros = await this.repo.GetNumeroEmpleadosOficioAsync(oficio);
+            ViewData["REGISTROS"] = registros;
+            ViewData["OFICIO"] = oficio;
+            return View(empleados);
+        }
 
         public async Task<IActionResult>
             PaginarGrupoVistaDepartamento(int? posicion)
